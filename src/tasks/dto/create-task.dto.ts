@@ -1,12 +1,9 @@
-import { IsNotEmpty } from 'class-validator'
-import { TaskStatus } from '../task-status.enum'
+import { IsNotEmpty } from "class-validator";
 
 export class CreateTaskDto {
   @IsNotEmpty()
-  title: string
+  title: string;
 
   @IsNotEmpty()
-  description: string
-
-  status: TaskStatus
+  description: string;
 }

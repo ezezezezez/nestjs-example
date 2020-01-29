@@ -1,41 +1,75 @@
-import { Controller, Get, Post, Body, Param, Delete, Patch, Query, UsePipes, ValidationPipe, ParseIntPipe } from '@nestjs/common';
-import { TasksService } from './tasks.service';
-import { CreateTaskDto } from './dto/create-task.dto';
-import { GetTasksFilterDto } from './dto/get-tasks-filter.dto';
-import { TaskStatusValidationPipe } from './pipes/task-status-validation.pipe';
-import { TaskEntity } from './task.entity';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Patch,
+  Query,
+  ParseIntPipe,
+  ValidationPipe
+} from "@nestjs/common";
+import { TasksService } from "./tasks.service";
+import { CreateTaskDto } from "./dto/create-task.dto";
+import { GetTasksFilterDto } from "./dto/get-tasks-filter.dto";
+import { UpdateTaskDto } from "./dto/update-task.dto";
+import { Task } from "./task.entity";
 
-@Controller('tasks')
+@Controller("tasks")
 export class TasksController {
   constructor(private tasksService: TasksService) {}
 
-  // @Get()
-  // @UsePipes(ValidationPipe)
-  // getTasks(@Query() filterDto: GetTasksFilterDto): Task[] {
-  //   if (Object.keys(filterDto).length > 0) {
-  //     return this.tasksService.getTasksWithFilters(filterDto)
-  //   }
-  //   return this.tasksService.getAllTasks()
-  // }
-  
-  @Get(':id')
-  getTaskById(@Param('id', ParseIntPipe) id: number): Promise<TaskEntity> {
-    return this.tasksService.getTaskById(id)
+  @Get()
+  getTasks(
+    @Query(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true
+      })
+    )
+    getTasksFilterDto: GetTasksFilterDto
+  ): Promise<Task[]> {
+    return this.tasksService.getTasks(getTasksFilterDto);
   }
 
-  // @Post()
-  // @UsePipes(ValidationPipe)
-  // createTask(@Body() createTaskDto: CreateTaskDto): Task {
-  //   return this.tasksService.createTask(createTaskDto)
-  // }
+  @Get(":id")
+  getTaskById(@Param("id", ParseIntPipe) id: number): Promise<Task> {
+    return this.tasksService.getTaskById(id);
+  }
 
-  // @Delete(':id')
-  // deleteTaskById(@Param('id') id: string): boolean {
-  //   return this.tasksService.deleteTaskById(id)
-  // }
+  @Post()
+  createTask(
+    @Body(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true
+      })
+    )
+    createTaskDto: CreateTaskDto
+  ): Promise<Task> {
+    return this.tasksService.createTask(createTaskDto);
+  }
 
-  // @Patch(':id')
-  // updateTaskById(@Param('id') id: string, @Body(TaskStatusValidationPipe) body: Partial<CreateTaskDto>): Task {
-  //   return this.tasksService.updateTaskById(id, body)
-  // }
+  @Delete(":id")
+  deleteTaskById(@Param("id", ParseIntPipe) id: number): Promise<void> {
+    return this.tasksService.deleteTaskById(id);
+  }
+
+  @Patch(":id")
+  updateTaskById(
+    @Param("id", ParseIntPipe) id: number,
+    @Body(
+      new ValidationPipe({
+        transform: true,
+        whitelist: true,
+        forbidNonWhitelisted: true
+      })
+    )
+    updateTaskDto: UpdateTaskDto
+  ): Promise<Task> {
+    return this.tasksService.updateTaskById(id, updateTaskDto);
+  }
 }
