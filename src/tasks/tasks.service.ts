@@ -14,7 +14,8 @@ import { UpdateTaskDto } from "./dto/update-task.dto";
 @Injectable()
 export class TasksService {
   constructor(
-    @InjectRepository(TaskRepository) private taskRepository: TaskRepository
+    @InjectRepository(TaskRepository)
+    private readonly taskRepository: TaskRepository
   ) {}
 
   getTasks(getTasksFilterDto: GetTasksFilterDto): Promise<Task[]> {

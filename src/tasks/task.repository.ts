@@ -39,11 +39,7 @@ export class TaskRepository extends Repository<Task> {
   async getTaskById(id: number): Promise<Task> {
     let task: Task;
 
-    try {
-      task = await this.findOne(id);
-    } catch (error) {
-      throw new InternalServerErrorException();
-    }
+    task = await this.findOne(id);
 
     if (!task) {
       throw new NotFoundException();

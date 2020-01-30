@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsIn, IsOptional } from "class-validator";
+import { IsNotEmpty, IsIn, IsOptional, IsString } from "class-validator";
 import { TaskStatus } from "../task-status.enum";
 
 export class UpdateTaskDto {
