@@ -48,7 +48,7 @@ export class UserRepository extends Repository<User> {
     user = await this.findOne({ username });
 
     if (!user) {
-      throw new NotFoundException();
+      throw new NotFoundException("Invalid credentials");
     }
 
     return user;
