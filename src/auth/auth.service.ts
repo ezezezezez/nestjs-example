@@ -1,47 +1,30 @@
-import { Injectable, UnauthorizedException, Logger } from "@nestjs/common";
-import { InjectRepository } from "@nestjs/typeorm";
-import { UserRepository } from "./user.repository";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { AuthCredentialsDto } from "./dto/auth-credentials.dto";
-import { User } from "./user.entity";
 import { JwtService } from "@nestjs/jwt";
-import { JwtPayload } from "./jwt-payload.interface";
+import { JwtPayloadDto } from "./dto/jwt-payload.dto";
+import { UserRepository } from "../user/user.repository";
+import { InjectRepository } from "@nestjs/typeorm";
+import { User } from "src/user/user.entity";
 
 @Injectable()
 export class AuthService {
-  private readonly logger: Logger = new Logger("AuthService");
-
   constructor(
-    @InjectRepository(UserRepository)
-    private readonly userRepository: UserRepository,
-    private readonly jwtService: JwtService
+    private readonly jwtService: JwtService,
+    // @InjectRepository(UserRepository)
+    private readonly userRepository: UserRepository
   ) {}
 
   signUp(authCredentialsDto: AuthCredentialsDto): Promise<void> {
-    return this.userRepository.signUp(authCredentialsDto);
+    return this.userRepository.addUser(authCredentialsDto);
   }
 
-  async signIn(
-    authCredentialsDto: AuthCredentialsDto
-  ): Promise<{ accessToken: string }> {
-    const { password } = authCredentialsDto;
-
-    const user = await this.userRepository.getUserByUsername(
+  async logIn(authCredentialsDto: AuthCredentialsDto) {
+    const user = await this.userRepository.validateCredentials(
       authCredentialsDto
     );
 
-    if (!(await user.validatePassword(password))) {
-      throw new UnauthorizedException();
-    }
+    const payload: JwtPayloadDto = { userId: user.id };
 
-    // TODO: store session, set cookie, redirect
-    const { username } = user;
-
-    const payload: JwtPayload = { username };
-
-    const accessToken = await this.jwtService.sign(payload);
-
-    this.logger.debug(`Generated JWT with payload ${JSON.stringify(payload)}`);
-
-    return { accessToken };
+    return { accessToken: this.jwtService.sign(payload) };
   }
 }

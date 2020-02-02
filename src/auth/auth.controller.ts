@@ -3,10 +3,12 @@ import {
   Post,
   Body,
   ValidationPipe,
-  HttpCode
+  UseGuards,
+  Req
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { AuthCredentialsDto } from "./dto/auth-credentials.dto";
+import { AuthGuard } from "@nestjs/passport";
 
 @Controller("auth")
 export class AuthController {
@@ -14,30 +16,21 @@ export class AuthController {
 
   @Post("signup")
   signUp(
-    @Body(
-      new ValidationPipe({
-        transform: true,
-        whitelist: true,
-        forbidNonWhitelisted: true
-      })
-    )
+    @Body(ValidationPipe)
     authCredentialsDto: AuthCredentialsDto
   ): Promise<void> {
     return this.authService.signUp(authCredentialsDto);
   }
 
-  @Post("signin")
-  @HttpCode(200)
-  signIn(
-    @Body(
-      new ValidationPipe({
-        transform: true,
-        whitelist: true,
-        forbidNonWhitelisted: true
-      })
-    )
+  @Post("login")
+  login(
+    @Body(ValidationPipe)
     authCredentialsDto: AuthCredentialsDto
-  ): Promise<{ accessToken: string }> {
-    return this.authService.signIn(authCredentialsDto);
+  ) {
+    return this.authService.logIn(authCredentialsDto);
   }
+
+  @Post("logout")
+  @UseGuards(AuthGuard("jwt"))
+  logOut(@Req() req) {}
 }
