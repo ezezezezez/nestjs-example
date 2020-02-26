@@ -5,6 +5,7 @@ import { TaskRepository } from "./task.repository";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Task } from "./task.entity";
 import { UpdateTaskDto } from "./dto/update-task.dto";
+import { TaskResponseDto } from "./dto/task-response.dto";
 
 @Injectable()
 export class TaskService {
@@ -16,7 +17,7 @@ export class TaskService {
   getTasks(
     getTasksFilterDto: GetTasksFilterDto,
     userId: number
-  ): Promise<Task[]> {
+  ): Promise<TaskResponseDto[]> {
     return this.taskRepository.getTasks(getTasksFilterDto, userId);
   }
 
@@ -30,6 +31,8 @@ export class TaskService {
     if (!task) {
       throw new NotFoundException();
     }
+    delete task.userId;
+    delete task.user;
     return task;
   }
 
@@ -48,12 +51,14 @@ export class TaskService {
     id: number,
     updateTaskDto: UpdateTaskDto,
     userId: number
-  ): Promise<Task> {
+  ): Promise<TaskResponseDto> {
     const task = await this.getTaskById(id, userId);
     task.title = updateTaskDto.title;
     task.description = updateTaskDto.description;
     task.status = updateTaskDto.status;
     await task.save();
+    delete task.userId;
+    delete task.user;
     return task;
   }
 }

@@ -7,21 +7,27 @@ import {
 } from "typeorm";
 import { TaskStatus } from "./task-status.enum";
 import { User } from "../user/user.entity";
+import { ApiHideProperty } from "@nestjs/swagger";
 
 @Entity()
 export class Task extends BaseEntity {
+  //   @ApiHideProperty()
   @PrimaryGeneratedColumn()
   id: number;
 
+  //   @ApiHideProperty()
   @Column()
   title: string;
 
+  //   @ApiHideProperty()
   @Column()
   description: string;
 
+  //   @ApiHideProperty()
   @Column()
   status: TaskStatus;
 
+  @ApiHideProperty()
   @ManyToOne(
     type => User,
     user => user.tasks,
@@ -29,6 +35,7 @@ export class Task extends BaseEntity {
   )
   user: User;
 
+  @ApiHideProperty()
   @Column()
   userId: number;
 }

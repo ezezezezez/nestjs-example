@@ -1,19 +1,16 @@
-import {
-  Repository,
-  EntityRepository,
-  DeleteResult,
-  UpdateResult
-} from "typeorm";
+import { Repository, EntityRepository } from "typeorm";
 import { Task } from "./task.entity";
 import { CreateTaskDto } from "./dto/create-task.dto";
 import { TaskStatus } from "./task-status.enum";
-import {
-  InternalServerErrorException,
-  NotFoundException,
-  Logger
-} from "@nestjs/common";
+import { InternalServerErrorException, Logger } from "@nestjs/common";
 import { UpdateTaskDto } from "./dto/update-task.dto";
 import { GetTasksFilterDto } from "./dto/get-tasks-filter.dto";
+import {
+  ApiOkResponse,
+  ApiForbiddenResponse,
+  ApiCreatedResponse
+} from "@nestjs/swagger";
+import { TaskResponseDto } from "./dto/task-response.dto";
 
 @EntityRepository(Task)
 export class TaskRepository extends Repository<Task> {
@@ -22,7 +19,7 @@ export class TaskRepository extends Repository<Task> {
   async getTasks(
     filterDto: GetTasksFilterDto,
     userId: number
-  ): Promise<Task[]> {
+  ): Promise<TaskResponseDto[]> {
     const { status, q } = filterDto;
 
     const query = this.createQueryBuilder("task");
@@ -41,7 +38,10 @@ export class TaskRepository extends Repository<Task> {
 
     try {
       const tasks = await query.getMany();
-
+      for (const task of tasks) {
+        delete task.user;
+        delete task.userId;
+      }
       return tasks;
     } catch (error) {
       this.logger.error(
@@ -68,6 +68,7 @@ export class TaskRepository extends Repository<Task> {
     try {
       await task.save();
 
+      delete task.userId;
       delete task.user;
     } catch (error) {
       this.logger.error(

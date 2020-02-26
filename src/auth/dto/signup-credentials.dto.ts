@@ -1,9 +1,11 @@
 import { IsNotEmpty, MinLength, MaxLength, Matches } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
 
-export class AuthCredentialsDto {
+export class SignUpCredentialsDto {
   @IsNotEmpty()
   @MinLength(4)
   @MaxLength(20)
+  @ApiProperty({ description: "Sign up username." })
   username: string;
 
   @IsNotEmpty()
@@ -13,5 +15,6 @@ export class AuthCredentialsDto {
     message:
       "password must contain a lowercase letter, an uppercase letter and a number or special character."
   })
+  @ApiProperty({ description: "Sign up password." })
   password: string;
 }

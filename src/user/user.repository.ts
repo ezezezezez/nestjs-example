@@ -5,13 +5,14 @@ import {
   InternalServerErrorException,
   UnauthorizedException
 } from "@nestjs/common";
-import { AuthCredentialsDto } from "src/auth/dto/auth-credentials.dto";
 import * as bcrypt from "bcrypt";
+import { LoginCredentialsDto } from "src/auth/dto/login-credentials.dto";
+import { SignUpCredentialsDto } from "src/auth/dto/signup-credentials.dto";
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
-  async addUser(authCredentialsDto: AuthCredentialsDto): Promise<void> {
-    const { username, password } = authCredentialsDto;
+  async addUser(signUpCredentialsDto: SignUpCredentialsDto): Promise<void> {
+    const { username, password } = signUpCredentialsDto;
     const user = this.create();
     const SALT_ROUNDS = 10;
 
@@ -31,14 +32,14 @@ export class UserRepository extends Repository<User> {
   }
 
   async validateCredentials(
-    authCredentialsDto: AuthCredentialsDto
+    loginCredentialsDto: LoginCredentialsDto
   ): Promise<User> {
-    const { username, password } = authCredentialsDto;
+    const { username, password } = loginCredentialsDto;
 
     const user = await this.findOne({ username });
 
     if (!user || !(await user.validatePassword(password))) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException("Incorrect username or password.");
     }
 
     return user;
